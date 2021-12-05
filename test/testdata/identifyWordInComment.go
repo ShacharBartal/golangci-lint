@@ -1,0 +1,3 @@
+//args: -EidentifyWordInComment
+
+package testdata

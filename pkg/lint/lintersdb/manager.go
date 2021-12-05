@@ -249,6 +249,10 @@ func (m Manager) GetAllSupportedLinterConfigs() []*linter.Config {
 			WithSince("v1.0.0").
 			WithPresets(linter.PresetUnused).
 			WithURL("https://github.com/gordonklaus/ineffassign"),
+		linter.NewConfig(golinters.NewIdentifyWordInComment()).
+			WithSince("v1.0.3").
+			WithPresets(linter.PresetStyle).
+			WithURL("github.com/ShacharBartal/identifyWordInComment"),
 		linter.NewConfig(golinters.NewDupl()).
 			WithSince("v1.0.0").
 			WithPresets(linter.PresetStyle).
