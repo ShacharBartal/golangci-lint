@@ -63,8 +63,7 @@ func NewRunner(cfg *config.Config, log logutils.Log, goenv *goutil.Env, es *lint
 			log.Warnf("The linter '%s' is deprecated (since %s) due to: %s %s", name, lc.Deprecation.Since, lc.Deprecation.Message, extra)
 		}
 	}
-
-	return &Runner{
+	r := Runner{
 		Processors: []processors.Processor{
 			processors.NewCgo(goenv),
 
@@ -83,7 +82,6 @@ func NewRunner(cfg *config.Config, log logutils.Log, goenv *goutil.Env, es *lint
 
 			getExcludeProcessor(&cfg.Issues),
 			getExcludeRulesProcessor(&cfg.Issues, log, lineCache),
-			processors.NewNolint(log.Child("nolint"), dbManager, enabledLinters),
 
 			processors.NewUniqByLine(cfg),
 			processors.NewDiff(cfg.Issues.Diff, cfg.Issues.DiffFromRevision, cfg.Issues.DiffPatchFilePath, cfg.Issues.WholeFiles),
@@ -97,7 +95,13 @@ func NewRunner(cfg *config.Config, log logutils.Log, goenv *goutil.Env, es *lint
 			processors.NewSortResults(cfg),
 		},
 		Log: log,
-	}, nil
+	}
+	if len(cfg.Linters.Enable) > 0 && cfg.Linters.Enable[0] != "identifyWordInComment" {
+		r.Processors = append(r.Processors, processors.NewNolint(log.Child("nolint"), dbManager, enabledLinters))
+	}
+
+	return &r, nil
+
 }
 
 func (r *Runner) runLinterSafe(ctx context.Context, lintCtx *linter.Context,
